@@ -1,0 +1,12 @@
+i386/
+i686/
+x86_64/
+ppc/
+ppc64/
+ia64/
+mips/
+arm*/
+noarch/
+.project
+*.src.rpm
+.build*.log
