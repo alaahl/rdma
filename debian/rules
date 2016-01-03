@@ -1,0 +1,61 @@
+#!/usr/bin/make -f
+
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+#include /usr/share/dpkg/default.mk
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+pname := rdma
+pversion := $(shell dpkg-parsechangelog | sed -n 's/^Version: *\([^-]\+\)-.\+/\1/p')
+
+%:
+	dh $@
+
+#
+# dh_make generated override targets
+#
+override_dh_auto_install:
+	dh_installdirs -p$(pname)  etc/udev/rules.d
+	install -m 0644 rdma.udev-ipoib-naming.rules  debian/$(pname)/etc/udev/rules.d/70-persistent-ipoib.rules
+
+	dh_installdirs -p$(pname)  lib/udev/rules.d
+	install -m 0644 rdma.udev-rules       debian/$(pname)/lib/udev/rules.d/98-rdma.rules
+
+	dh_installdirs -p$(pname) etc/rdma
+	install -m 0644 rdma.mlx4.conf        debian/$(pname)/etc/rdma/mlx4.conf
+	install -m 0644 rdma.conf             debian/$(pname)/etc/rdma/rdma.conf
+	install -m 0644 rdma.sriov-vfs        debian/$(pname)/etc/rdma/sriov-vfs
+
+	dh_installdirs -p$(pname) lib/systemd/system
+	install -m 0644 rdma.service          debian/$(pname)/lib/systemd/system/rdma.service
+
+	dh_installdirs -p$(pname) sbin
+	install -m 0755 rdma.kernel-init      debian/$(pname)/sbin/rdma-init-kernel
+	install -m 0755 rdma.fixup-mtrr.awk   debian/$(pname)/sbin/rdma-fixup-mtrr.awk
+	install -m 0755 rdma.mlx4-setup.sh    debian/$(pname)/sbin/mlx4-setup.sh
+	install -m 0755 rdma.sriov-init       debian/$(pname)/sbin/rdma-set-sriov-vf
+
+	dh_installdirs -p$(pname) etc/modprobe.d
+	install -m 0644 rdma.mlx4.user.modprobe      debian/$(pname)/etc/modprobe.d/mlx4-rdma.conf
+
+	dh_installdirs -p$(pname) lib/modprobe.d
+	install -m 0644 rdma.mlx4.sys.modprobe       debian/$(pname)/lib/modprobe.d/libmlx4.conf
+	install -m 0644 rdma.cxgb3.sys.modprobe      debian/$(pname)/lib/modprobe.d/cxgb3.conf
+	install -m 0644 rdma.cxgb4.sys.modprobe      debian/$(pname)/lib/modprobe.d/cxgb4.conf
+
+	# hooks for adding rmda stuff to initramfs/initrd
+	dh_installdirs -p$(pname) usr/lib/dracut/modules.d/05rdma/
+	install -m 0644 rdma.modules-setup.sh        debian/$(pname)/usr/lib/dracut/modules.d/05rdma/module-setup.sh
+	dh_installdirs -p$(pname) etc/initramfs-tools/hooks
+	install -m 0755 rdma-initramfs-tools-hook    debian/$(pname)/etc/initramfs-tools/hooks/rdma
+
+#
+# don't mark all files under /etc as conffiles
+override_dh_installdeb:
+	dh_installdeb
+	# override conf files list
+	echo "/etc/rdma/rdma.conf" > debian/$(pname)/DEBIAN/conffiles
+	echo "/etc/rdma/mlx4.conf" >> debian/$(pname)/DEBIAN/conffiles
+	echo "/etc/rdma/sriov-vfs" >> debian/$(pname)/DEBIAN/conffiles

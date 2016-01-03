@@ -1,0 +1,5 @@
+rdma (4.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #676403)
+
+ -- Alaa Hleihel <alaa@mellanox.com>  Wed, 30 Dec 2015 11:36:11 +0200

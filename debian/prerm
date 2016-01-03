@@ -1,0 +1,25 @@
+#!/bin/sh
+# prerm script for rdma
+#
+
+set -e
+
+case "$1" in
+    remove)
+        systemctl stop rdma >/dev/null  2>&1 || true
+        systemctl --no-reload disable rdma >/dev/null  2>&1 || true
+    ;;
+
+    upgrade|deconfigure)
+    ;;
+
+    failed-upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0

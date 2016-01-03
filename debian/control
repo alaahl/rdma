@@ -1,0 +1,13 @@
+Source: rdma
+Section: utils
+Priority: optional
+Maintainer: Alaa Hleihel <alaa@mellanox.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/alaahl/rdma
+
+Package: rdma
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Infiniband/iWARP Kernel Module Initializer
+ User space initialization scripts for the kernel InfiniBand/iWARP drivers

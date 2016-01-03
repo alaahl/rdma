@@ -1,0 +1,70 @@
+# Network Interface Configuration System
+# Copyright 2016        Mellanox Technologies. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+
+#!/bin/sh -e
+
+PREREQS=""
+
+prereqs() { echo "$PREREQS"; }
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+# Begin real processing below this line
+
+_install_file()
+{
+    local fpath=$1; shift
+    local dest=$1; shift
+
+    if [ "X$fpath" = "X" ] || [ "X$dest" = "X" ]; then
+        exit 1
+    fi
+
+    fname=$(basename $fpath)
+    if [ -e $DESTDIR/$dest/$fname ]; then
+        return
+    fi
+
+    mkdir -p $DESTDIR/$dest
+    cp $fpath $DESTDIR/$dest
+}
+
+_install_file /etc/rdma/rdma.conf /etc/rdma
+_install_file /etc/rdma/mlx4.conf /etc/rdma
+_install_file /etc/rdma/sriov-vfs /etc/rdma
+
+_install_file /sbin/rdma-init-kernel /sbin
+_install_file /sbin/rdma-fixup-mtrr.awk /sbin
+_install_file /sbin/mlx4-setup.sh /sbin
+_install_file /sbin/rdma-set-sriov-vf /sbin
+
+_install_file /lib/modprobe.d/libmlx4.conf /lib/modprobe.d
+
+_install_file /etc/modprobe.d/mlx4-rdma.conf /etc/modprobe.d
+
+_install_file /lib/udev/rules.d/98-rdma.rules /lib/udev/rules.d
+
+_install_file /etc/udev/rules.d/70-persistent-ipoib.rules /udev/rules.d
+
+for program in bash lspci setpci awk sleep; do
+  programpath=$(which $program)
+  copy_exec $programpath $(dirname $programpath)
+done
+
+exit 0

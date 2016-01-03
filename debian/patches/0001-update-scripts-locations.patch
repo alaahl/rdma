@@ -1,0 +1,56 @@
+diff --git a/rdma.kernel-init b/rdma.kernel-init
+index a41bc47e3e12..4ec9a9310214 100644
+--- a/rdma.kernel-init
++++ b/rdma.kernel-init
+@@ -9,7 +9,7 @@
+ shopt -s nullglob
+ 
+ CONFIG=/etc/rdma/rdma.conf
+-MTRR_SCRIPT=/usr/libexec/rdma-fixup-mtrr.awk
++MTRR_SCRIPT=/sbin/rdma-fixup-mtrr.awk
+ 
+ LOAD_ULP_MODULES=""
+ LOAD_CORE_USER_MODULES="ib_umad ib_uverbs ib_ucm rdma_ucm"
+@@ -243,6 +243,6 @@ RC=$[ $RC + $? ]
+ errata_58
+ errata_56
+ 
+-/usr/libexec/rdma-set-sriov-vf
++/sbin/rdma-set-sriov-vf
+ 
+ exit $RC
+diff --git a/rdma.mlx4.sys.modprobe b/rdma.mlx4.sys.modprobe
+index c333905d1af6..168eb94b8434 100644
+--- a/rdma.mlx4.sys.modprobe
++++ b/rdma.mlx4.sys.modprobe
+@@ -2,4 +2,4 @@
+ # updated.  Please do not make any changes to this file.  Instead, make
+ # changes to the mlx4.conf file.  It's contents are preserved if they
+ # have been changed from the default values.
+-install mlx4_core /sbin/modprobe --ignore-install mlx4_core && (if [ -f /usr/libexec/mlx4-setup.sh -a -f /etc/rdma/mlx4.conf ]; then /usr/libexec/mlx4-setup.sh < /etc/rdma/mlx4.conf; fi; /sbin/modprobe mlx4_en; /sbin/modprobe mlx4_ib)
++install mlx4_core /sbin/modprobe --ignore-install mlx4_core && (if [ -f /sbin/mlx4-setup.sh -a -f /etc/rdma/mlx4.conf ]; then /sbin/mlx4-setup.sh < /etc/rdma/mlx4.conf; fi; /sbin/modprobe mlx4_en; /sbin/modprobe mlx4_ib)
+diff --git a/rdma.service b/rdma.service
+index 514ef58b968b..eeb1c91ca706 100644
+--- a/rdma.service
++++ b/rdma.service
+@@ -9,7 +9,7 @@ Before=network.target remote-fs-pre.target
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
+-ExecStart=/usr/libexec/rdma-init-kernel
++ExecStart=/sbin/rdma-init-kernel
+ 
+ [Install]
+ WantedBy=sysinit.target
+diff --git a/rdma.udev-ipoib-naming.rules b/rdma.udev-ipoib-naming.rules
+index 10024708a579..cd7f5018ed66 100644
+--- a/rdma.udev-ipoib-naming.rules
++++ b/rdma.udev-ipoib-naming.rules
+@@ -7,7 +7,4 @@
+ # bytes of the address or else the address might not match on any given
+ # start of the IPoIB stack
+ #
+-# Note: as of rhel7, udev is case sensitive on the address field match
+-# and all addresses need to be in lower case.
+-#
+ # ACTION=="add", SUBSYSTEM=="net", DRIVERS=="?*", ATTR{type}=="32", ATTR{address}=="?*00:02:c9:03:00:31:78:f2", NAME="mlx4_ib3"
